@@ -1,20 +1,22 @@
 import java.util.Scanner;
 import java.util.ArrayList;
 
+import java.awt.Color;
+
 
 
 public class Sequence {
 	
 	//once set use .finalize()
 	//static finals:
-	public static final String[] COLORS = {"RED", "GREEN", "BLUE"};
+	public static final Color[] COLORS = {Color.red, Color.green, Color.blue};
 	//finals:
 	private Deck DECK = new Deck();
 	private Player[] PLAYERS;
 	//others:
 	//If only 2 players, MAX_CARDS is 7, otherwise 6
 	private int MAX_CARDS = 6;
-	private Board BOARD = new Board();
+	private Board BOARD;
 	
 	
 	
@@ -23,11 +25,13 @@ public class Sequence {
 	public Sequence() {
 		//System.out.println("Setting up game...");
 		
-		//this.PLAYERS = this.initPlayers();
+		this.PLAYERS = this.initPlayers();
 		
 		//System.out.println("Cards are being dealt...");
 		
-		//this.dealCards();
+		this.dealCards();
+		
+		this.initBoard();
 		
 		//System.out.println("Cards dealt...");
 		
@@ -37,6 +41,11 @@ public class Sequence {
 	}
 	
 	//***********************************************************************************************************
+	
+	private void initBoard() {
+		//player 0 is human
+		this.BOARD = new Board(PLAYERS[0]);
+	}
 	
 	private void dealCards() {
 		//silly rule
@@ -50,7 +59,9 @@ public class Sequence {
 				hand.add(this.DECK.draw());
 			}
 			player.setHand(hand);
+			System.out.println(hand);
 		}
+		
 	}
 	
 	private Player[] initPlayers() {
@@ -66,14 +77,14 @@ public class Sequence {
 		for(int player = 0; player < numPlayers; player++) {
 			System.out.print("Enter player name: ");
 			String name = scan.next();
-			String color = this.calcColor(player,numTeams);
+			Color color = this.calcColor(player,numTeams);
 			players[player] = new Player(name,color);
 		}
 		
 		return players;
 	}
 	
-	public String calcColor(int playerNum, int numTeams) {
+	public Color calcColor(int playerNum, int numTeams) {
 		return Sequence.COLORS[playerNum % numTeams];
 	}
 	
@@ -100,12 +111,12 @@ public class Sequence {
 	//***********************************************************************************************************
 	
 	public void play() {
-		//System.out.println("playing game...");
+		System.out.println("playing game...");
 		
 		//int currentPlayer = getFirstPlayer();	
 		
-		boolean playing = true;
-		while(playing) {
+		//boolean playing = true;
+		//while(playing) {
 			/*
 			 * Turns consist of four steps:
 			 * 1. Select a card that refers to a vacant board space
@@ -116,7 +127,31 @@ public class Sequence {
 			 */		
 			
 			//wait for a player to click
-		}
+			
+		//}
+		
+		System.out.println("here!!");
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		BOARD.getClick();
+		
+		BOARD.getPanel().onClick((x,y) -> {this.clicker(x, y);});
+		BOARD.getPanel().onClick((x,y) -> {System.out.println(x + "," + y);});
+		
+		
+		System.out.println("done playing!!");
+	}
+	
+	public void clicker(int x, int y) {
+		System.out.println(x + "," + y);
 	}
 	
 	//***********************************************************************************************************

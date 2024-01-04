@@ -1,12 +1,17 @@
 import java.awt.Graphics;
 import java.awt.Color;
+import java.util.ArrayList;
 
 
 
 public class Board {
 	private Tile[][] board;
+	
 	private final int size = 1000;
 	private final int rows = 10;
+	private Player human;
+	private ArrayList<Card> hand;
+	
 	private DrawingPanel panel;
 	private Graphics g;
 	
@@ -15,19 +20,30 @@ public class Board {
 	private int leftMargin;
 	private int tileWidth;
 	
+	int cardTopMargin = topMargin + boardSize + 10;
+	int cardBottomMargin = 0;
+	int cardLeftMargin = 50;
+	int cardWidth = 100;
+	
 	private Color backgroundGreen = new Color(0,100,0);
 	private Color lightGray = new Color(169,169,169);
 	
-	public Board() {
+	private int[] tileIndex = {-1,-1};
+	private Card selectedCard = null;
+	
+	public Board(Player human) {
 		this.board = this.initBoard();
 		this.panel = new DrawingPanel(this.size,this.size);
 		this.g = this.panel.getGraphics();
+		
+		this.human = human;
+		this.hand = human.getHand();
 	}
 	
 	public void draw() {
 		this.drawBackground();
 		this.drawBoard();
-		this.drawPlayer();
+		this.drawCards();
 		this.drawOthers();
 	}
 	
@@ -46,27 +62,36 @@ public class Board {
 			for(int col = 0; col < board[row].length; col++) {
 				String cardName = board[row][col].getCardName();
 				if(cardName.equals("W")) {
-					this.drawWild(row,col);
+					this.drawPiece(row,col,Color.black);
 				} else {
-					this.drawCard(row,col,cardName);
+					this.drawTileName(row,col);
 				}
 			}
 		}
 	}
 	
-	private void drawWild(int row, int col) {
-		g.setColor(Color.black);
+	private void drawPiece(int row, int col, Color color) {
+		g.setColor(color);
 		g.fillOval(leftMargin+col*tileWidth,topMargin+row*tileWidth,tileWidth,tileWidth);
+		
+		if(color.equals(lightGray)) {
+			this.drawTileName(row,col);
+		}
 	}
 	
-	private void drawCard(int row, int col, String cardName) {
+	private void drawTileName(int row, int col) {
+		String cardName = board[row][col].getCardName();
+		this.setCardColor(cardName);
+		cardName = this.prettyName(cardName);
+		g.drawString(cardName, (int)(leftMargin+(col+0.3)*tileWidth), (int)(topMargin+(row+0.5)*tileWidth));
+	}
+	
+	private void setCardColor(String cardName) {
 		if(cardName.contains("H")||cardName.contains("D")) {
 			g.setColor(Color.red);
 		} else {
 			g.setColor(Color.black);
 		}
-		cardName = this.prettyName(cardName);
-		g.drawString(cardName, (int)(leftMargin+(col+0.3)*tileWidth), (int)(topMargin+(row+0.5)*tileWidth));
 	}
 	
 	private String prettyName(String cardName) {
@@ -97,8 +122,41 @@ public class Board {
 		}
 	}
 	
-	private void drawPlayer() {
+	private void drawCards() {
+		this.drawPlayerCards();
+		this.drawDeck();
+	}
+	
+	private void drawPlayerCards() {
+		for(int card = 0; card < hand.size(); card++) {
+			this.drawPlayerCard(card, Color.gray);
+		}
+	}
+	
+	private void drawPlayerCard(int card, Color color) {
+		int boardTopMargin = this.topMargin + boardSize + 10;
+		int bottomMargin = 0;
+		int leftMargin = 50;
+		int cardWidth = 100;
 		
+		g.setColor(color);
+		g.fillRect(leftMargin + card * cardWidth, boardTopMargin, cardWidth, size - boardTopMargin - bottomMargin);
+		g.setColor(Color.black);
+		g.drawRect(leftMargin + card * cardWidth, boardTopMargin, cardWidth, size - boardTopMargin - bottomMargin);
+		
+		String cardName = hand.get(card).getCardName();
+		this.setCardColor(cardName);
+		g.drawString(this.prettyName(cardName), (int)(leftMargin + (card + 0.3) * cardWidth), (int)(boardTopMargin * 1.05));
+	}
+		
+	private void drawDeck() {		
+		g.setColor(Color.gray);
+		g.fillRect(leftMargin + 8 * cardWidth, cardTopMargin, cardWidth, size - cardTopMargin + cardBottomMargin);
+		g.setColor(Color.black);
+		g.drawRect(leftMargin + 8 * cardWidth, cardTopMargin, cardWidth, size - cardTopMargin + cardBottomMargin);
+		
+		String cardName = "Deck";
+		g.drawString(cardName, (int)(leftMargin + (8 + 0.2) * cardWidth), (int)(cardTopMargin * 1.05));
 	}
 	
 	private void drawOthers() {
@@ -140,4 +198,68 @@ public class Board {
 	public Tile[][] getBoard(){
 		return board;
 	}
+	
+	public DrawingPanel getPanel() {
+		return this.panel;
+	}
+	
+	//we need the player to click on their card before clicking on the board to place it
+	public void getClick() {
+		System.out.println("here2");
+		this.panel.onClick( (x,y) -> { this.processClick(x,y); } );
+		this.panel.onClick( (x,y) -> { System.out.println(x + "," + y); } );
+	}
+	
+	private void processClick(int x, int y) {
+		System.out.println(x + "," + y);
+		if(y >= topMargin && y <= topMargin + boardSize && x >= leftMargin && x <= leftMargin + boardSize) {
+			this.processBoardClick(x,y);
+		} else if(y >= cardTopMargin && y <= size - cardBottomMargin && 
+				x >= cardLeftMargin && x <= cardLeftMargin + hand.size() * cardWidth) {
+			this.processCardClick(x,y);
+		}
+	}
+	
+	private void processBoardClick(int x, int y) {
+		int[] index = this.getBoardIndex(x,y);
+		String tileName = this.board[index[0]][index[1]].getCardName();
+		String cardName = this.selectedCard.getCardName();
+		if(tileName.equals(cardName) || cardName.substring(0,2).equals("2J")) {
+			Color color = human.getColor();
+			this.drawPiece(x, y, color);
+		} else if(cardName.substring(0,2).equals("1J")) {
+			this.drawPiece(x, y, lightGray);
+		}
+	}
+	
+	private int[] getBoardIndex(int x, int y) {
+		x -= leftMargin;
+		x = (int)(x / tileWidth);
+		
+		y -= topMargin;
+		y = (int)(y / tileWidth);
+		
+		return new int[]{x,y};
+	}
+	
+	private void processCardClick(int x, int y) {
+		int index = this.getCardIndex(x,y);
+		Card card = hand.get(index);
+		card.toggleSelect();
+		if(card.isSelected()) {
+			this.drawPlayerCard(index, Color.gray);
+			this.selectedCard = null;
+		} else {
+			this.drawPlayerCard(index, Color.yellow);
+			this.selectedCard = card;
+		}
+	}
+	
+	private int getCardIndex(int x, int y) {
+		x -= cardLeftMargin;
+		x = (int)(x / cardWidth);
+		
+		return x;
+	}
+
 }

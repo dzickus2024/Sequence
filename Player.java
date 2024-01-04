@@ -1,12 +1,13 @@
 import java.util.ArrayList;
+import java.awt.Color;
 
 
 public class Player {
 	private String name;
-	private String color;
+	private Color color;
 	private ArrayList<Card> hand;
 	
-	public Player(String name, String color) {
+	public Player(String name, Color color) {
 		this.name = name;
 		this.color = color;
 		this.hand = new ArrayList<Card>();
@@ -16,15 +17,16 @@ public class Player {
 		this.hand = hand;
 	}
 	
+	public ArrayList<Card> getHand(){
+		return this.hand;
+	}
+	
 	public String getName() {
 		return this.name;
 	}
 	
-	public String getColor() {
+	public Color getColor() {
 		return this.color;
 	}
 	
-	public ArrayList<Card> getHand(){
-		return hand;
-	}
 }
