@@ -1,6 +1,8 @@
-import java.awt.Graphics;
-import java.awt.Color;
-import java.util.ArrayList;
+import java.io.*;
+import javax.swing.*;
+
+import java.awt.*;
+import java.util.*;
 
 
 
@@ -12,8 +14,8 @@ public class Board {
 	private Player human;
 	private ArrayList<Card> hand;
 	
-	private DrawingPanel panel;
-	private Graphics g;
+	private JFrame frame;
+	private JPanel panel;
 	
 	private int boardSize;
 	private int topMargin;
@@ -32,19 +34,33 @@ public class Board {
 	private Card selectedCard = null;
 	
 	public Board(Player human) {
-		this.board = this.initBoard();
-		this.panel = new DrawingPanel(this.size,this.size);
-		this.g = this.panel.getGraphics();
+		board = initBoard();
+		frame = new JFrame();
+		frame.setSize(size + 100,size + 100); //I think +100 is needed here
+		panel = new JPanel();
+		frame.add(panel);
+
+		panel.addMouseListener(new MouseAdapater() {
+			@Override
+			public void mousePressed(MouseEvent e){
+				this.handleMouse(e.getX(), e.getY());
+			}
+		});
+
 		
 		this.human = human;
-		this.hand = human.getHand();
+		hand = human.getHand();
+	}
+
+	public void handleMouse(int x, int y){
+		//do stuff
 	}
 	
 	public void draw() {
-		this.drawBackground();
-		this.drawBoard();
-		this.drawCards();
-		this.drawOthers();
+		drawBackground();
+		drawBoard();
+		drawCards();
+		drawOthers();
 	}
 	
 	private void drawBackground() {
@@ -53,8 +69,8 @@ public class Board {
 	}
 	
 	private void drawBoard() {
-		this.drawGrid();
-		this.drawTiles();
+		drawGrid();
+		drawTiles();
 	}
 	
 	private void drawTiles() {
