@@ -6,7 +6,7 @@ import java.util.*;
 
 
 
-public class Board {
+public class Board extends JFrame{
 	private Tile[][] board;
 	
 	private final int size = 1000;
@@ -15,7 +15,6 @@ public class Board {
 	private ArrayList<Card> hand;
 	
 	private JFrame frame;
-	private JPanel panel;
 	
 	private int boardSize;
 	private int topMargin;
@@ -30,22 +29,12 @@ public class Board {
 	private Color backgroundGreen = new Color(0,100,0);
 	private Color lightGray = new Color(169,169,169);
 	
-	private int[] tileIndex = {-1,-1};
 	private Card selectedCard = null;
 	
 	public Board(Player human) {
 		board = initBoard();
 		frame = new JFrame();
 		frame.setSize(size + 100,size + 100); //I think +100 is needed here
-		panel = new JPanel();
-		frame.add(panel);
-
-		panel.addMouseListener(new MouseAdapater() {
-			@Override
-			public void mousePressed(MouseEvent e){
-				this.handleMouse(e.getX(), e.getY());
-			}
-		});
 
 		
 		this.human = human;

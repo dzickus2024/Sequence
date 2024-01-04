@@ -110,9 +110,7 @@ public class Sequence {
 	
 	//***********************************************************************************************************
 	
-	public void play() {
-		System.out.println("playing game...");
-		
+	public void play() {		
 		//int currentPlayer = getFirstPlayer();	
 		
 		//boolean playing = true;
@@ -130,24 +128,7 @@ public class Sequence {
 			
 		//}
 		
-		System.out.println("here!!");
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		BOARD.getClick();
-		
-		BOARD.getPanel().onClick((x,y) -> {this.clicker(x, y);});
-		BOARD.getPanel().onClick((x,y) -> {System.out.println(x + "," + y);});
-		
-		
-		System.out.println("done playing!!");
+			
 	}
 	
 	public void clicker(int x, int y) {
